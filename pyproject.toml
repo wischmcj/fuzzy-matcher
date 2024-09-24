@@ -1,0 +1,19 @@
+[project]
+name = "fuzzy-matcher"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "googlemaps>=4.10.0",
+    "pipreqs>=0.5.0",
+    "pre-commit>=3.8.0",
+    "pytz>=2024.2",
+    "rapidfuzz>=3.9.7",
+    "redis>=5.0.8",
+    "requests>=2.32.3",
+    "ruff>=0.6.7",
+    "thefuzz>=0.22.1",
+    "toml>=0.10.2",
+    "urllib3>=2.2.3",
+]
