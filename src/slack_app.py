@@ -1,6 +1,6 @@
 import os
-from log_utils import logger
-from slack_bolt import app, SlackRequestHandler
+from configuration import logger
+from slack_bolt import App, SlackRequestHandler
 from file_tasks import process_file_urls
 
 BOT_TOKEN = ""

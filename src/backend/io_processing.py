@@ -1,4 +1,4 @@
-from log_utils import logger
+from configuration import logger
 from helper_classes import Address
 
 FIELD_ALIAS = {

@@ -1,4 +1,4 @@
-from log_utils import logger
+from configuration import logger
 from src.backend.io_processing import input_to_address
 from matching.main import match_address
 

@@ -1,4 +1,4 @@
-from log_utils import logger
+from configuration import logger
 
 from concurrent.futures import ProcessPoolExecutor
 from slack_app import start_slack_app
