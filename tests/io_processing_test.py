@@ -14,7 +14,17 @@ def string_compare(s1, s2)-> bool:
 
 @mark.parametrize(
     "headers, expected",
-    [   
+    [   (
+            ["record_id", "full_name", "street_address", "town", "province", "nation",],
+            {
+                "source_id": 0,
+                "name": 1,
+                "address_one": 2,
+                "locality": 3,
+                "state": 4,
+                "country": 5,
+            },
+        ),
         (
             ["id", "name", "address", "city", "state", "country"],
             {
@@ -142,5 +152,4 @@ def test_validate_input_cols(col_map, expected):
 )
 def test_input_to_address(input_data, expected):
     actual = io_module.input_to_address(input_data)
-    breakpoint()
     assert actual == expected

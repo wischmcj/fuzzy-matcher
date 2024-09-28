@@ -110,5 +110,6 @@ def input_to_address(input_data: list,
     addresses = []
     for row in data:
         addr = Address()
-        addresses.append(addr.from_data(row, col_map))
+        addr.from_data(row, col_map)
+        addresses.append(addr)
     return addresses
