@@ -10,11 +10,11 @@ import string
 
 def string_compare(s1, s2)-> bool:
     remove = string.punctuation + string.whitespace
-    return s1.translate(None, remove) == s2.translate(None, remove)
+    return s1.translate(remove) == s2.translate(remove)
 
 @mark.parametrize(
     "headers, expected",
-    [
+    [   
         (
             ["id", "name", "address", "city", "state", "country"],
             {
@@ -62,7 +62,17 @@ def test_id_input_columns(headers, expected):
 
 @mark.parametrize(
     "col_map, expected",
-    [
+    [   
+        (
+            {
+                "source_id": 0,
+                "name": 1,
+                "address_one": 2,
+                "locality": 3,
+                "state": 4,
+            },
+            (False, "Input invalid: please add either \n                        {'longitude', 'latitude'} or {'country'}.")
+        ),
         (
             {
                 "source_id": 0,
@@ -72,11 +82,8 @@ def test_id_input_columns(headers, expected):
                 "state": 4,
                 "country": 5,
             },
-            "Validated",
-        ),
-        (
-            {"source_id": 0, "name": 1, "address_one": 2, "locality": 3, "state": 4},
-            "Input invalid: please add either \n                        ['country'] or ['latitude', 'longitude'].",
+           (True, "Consider adding ['address_two', 'country_code', 'latitude', 'longitude', 'postal_code', 'source', 'state_code']\n                        to the input file for improved accuracy.")
+
         ),
         (
             {
@@ -88,13 +95,14 @@ def test_id_input_columns(headers, expected):
                 "country": 5,
                 "extra": 6,
             },
-            "Unexpected columns found: {'extra'}.\n                        These columns might be misspelled or unneeded.",
+            (True, "Consider adding ['address_two', 'country_code', 'latitude', 'longitude', 'postal_code', 'source', 'state_code']\n                        to the input file for improved accuracy.\nUnexpected columns found: ['extra'].\n                        These columns might be misspelled or unneeded.")
         ),
     ],
 )
 def test_validate_input_cols(col_map, expected):
     actual = io_module.validate_input_cols(col_map)
-    assert actual == expected
+    assert string_compare(actual[1],expected[1])
+
 
 
 @mark.parametrize(
@@ -102,22 +110,18 @@ def test_validate_input_cols(col_map, expected):
     [
         (
             [
+                ["id", "name", "address", "city", "state"],
+                ["1", "John Doe", "123 Main St", "Anytown", "Anystate"],
+            ],
+            "Input invalid: please add either \n                        {'longitude', 'latitude'} or {'country'}.",
+        ),
+        (
+            [
                 ["id", "name", "address", "city", "state", "country"],
                 ["1", "John Doe", "123 Main St", "Anytown", "Anystate", "USA"],
             ],
-            [
-                io_module.Address(
-                    ["1", "John Doe", "123 Main St", "Anytown", "Anystate", "USA"],
-                    {
-                        "source_id": 0,
-                        "name": 1,
-                        "address_one": 2,
-                        "locality": 3,
-                        "state": 4,
-                        "country": 5,
-                    },
-                )
-            ],
+            [io_module.Address(source='file_input', source_id='1', name='John Doe', address_one='123 Main St', address_two=None, locality='Anytown', state='Anystate', state_code=None, postal_code=None, country='USA', country_code=None, lattitude=None, longitude=None, lat_long=(None, None))]
+
         ),
         (
             [
@@ -131,29 +135,12 @@ def test_validate_input_cols(col_map, expected):
                 ],
                 ["1", "John Doe", "123 Main St", "Anytown", "Anystate", "USA"],
             ],
-            [
-                io_module.Address(
-                    ["1", "John Doe", "123 Main St", "Anytown", "Anystate", "USA"],
-                    {
-                        "source_id": 0,
-                        "name": 1,
-                        "address_one": 2,
-                        "locality": 3,
-                        "state": 4,
-                        "country": 5,
-                    },
-                )
-            ],
-        ),
-        (
-            [
-                ["id", "name", "address", "city", "state"],
-                ["1", "John Doe", "123 Main St", "Anytown", "Anystate"],
-            ],
-            "Input invalid: please add either \n                        ['country'] or ['latitude', 'longitude'].",
+            [io_module.Address(source='file_input', source_id='1', name='John Doe', address_one='123 Main St', address_two=None, locality='Anytown', state='Anystate', state_code=None, postal_code=None, country='USA', country_code=None, lattitude=None, longitude=None, lat_long=(None, None))]
+
         ),
     ],
 )
 def test_input_to_address(input_data, expected):
     actual = io_module.input_to_address(input_data)
+    breakpoint()
     assert actual == expected

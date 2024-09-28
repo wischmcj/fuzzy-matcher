@@ -4,6 +4,7 @@ from src.backend.helper_classes import Address
 logger = logging.getLogger(__name__)
 
 FIELD_ALIAS = {
+    "source": ["source"],
     "source_id": ["id", "record_id", "source_id"],
     "name": ["name", "full_name", "first_name", "last_name"],
     "address_one": [
@@ -73,35 +74,41 @@ def validate_input_cols(col_map: dict) -> str:
 
     unexpected_columns = cols_found - expected_columns
     missing_optional = expected_columns - cols_found
-    missing_required = [col_set.intersection(cols_found) for col_set in req_cols]
-
+    missing_required = [col_set - cols_found for col_set in req_cols]
     if all(missing_required):
         msg = f"""Input invalid: please add either 
                         {missing_required[1]} or {missing_required[0]}."""
-        return msg
+        return False, msg
 
     if missing_optional:
-        warnings.append(f"""Consider adding {missing_optional}
+        warnings.append(f"""Consider adding {sorted(missing_optional)}
                         to the input file for improved accuracy.""")
     if unexpected_columns:
-        warnings.append(f"""Unexpected columns found: {unexpected_columns}.
+        warnings.append(f"""Unexpected columns found: {sorted(unexpected_columns)}.
                         These columns might be misspelled or unneeded.""")
     if warnings:
         warning_message = "\n".join(warnings)
         logger.warning(warning_message)
-        return warning_message
-    return "Validated"
+        return True, warning_message
+    return True, ''
 
 
-def input_to_address(input_data: list) -> list[Address]:
+def input_to_address(input_data: list,
+                    source:str ='file_input') -> list[Address]:
     headers = input_data[0]
     data = input_data[1:]
+    if 'source' not in headers:
+        headers.append('source')
+        for row in data:
+            row.append(source)
+
     col_map = id_input_columns(headers)
-    validation_status = validate_input_cols(col_map)
-
-    if validation_status != "Validated":
-        logger.error(validation_status)
-        return validation_status
-
-    addresses = [Address(row, col_map) for row in data]
+    validated, msg = validate_input_cols(col_map)
+    if not validated:
+        logger.error(msg)
+        return msg
+    addresses = []
+    for row in data:
+        addr = Address()
+        addresses.append(addr.from_data(row, col_map))
     return addresses
