@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-from configuration import logger
+from src.configuration import logger
 
 LatLong = tuple[Optional[float], Optional[float]]
 

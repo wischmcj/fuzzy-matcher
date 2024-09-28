@@ -19,9 +19,9 @@ LOCAL_FILENAME = CONFIG["local_filename"]
 
 
 
-logger = logging.getlogger("pmt_fuzzy")
+logger = logging.getLogger("pmt_fuzzy")
 
-if os.environ("FULL_PATH") == "True":
+if os.environ["FULL_PATH"] == "True":
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 # in the case of a local run level =logging.DEBUG
 else:

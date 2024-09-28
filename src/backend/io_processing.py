@@ -1,5 +1,7 @@
-from configuration import logger
-from helper_classes import Address
+import logging
+from src.backend.helper_classes import Address
+
+logger = logging.getLogger(__name__)
 
 FIELD_ALIAS = {
     "source_id": ["id", "record_id", "source_id"],
@@ -65,8 +67,8 @@ def validate_input_cols(col_map: dict) -> str:
     cols_found = set(col_map.keys())
     expected_columns = set(FIELD_ALIAS.keys())
     req_cols = [
-        ["address_one", "locality", "state", "country"],
-        ["latitude", "longitude"],
+        set(["address_one", "locality", "state", "country"]),
+        set(["latitude", "longitude"]),
     ]
 
     unexpected_columns = cols_found - expected_columns
