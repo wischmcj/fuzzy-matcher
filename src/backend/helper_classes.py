@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from src.configuration import logger
 
-from thefuzz import (
+from thefuzz.fuzz import (
     ratio,
     partial_ratio,
     token_sort_ratio,
@@ -33,8 +33,16 @@ class Address:
     lat_long: LatLong = None
 
     full_address: Optional[str] = None
-
+    
     def __eq__(self, value: object) -> bool:
+        if not isinstance(value, Address):
+            return False
+        return all(
+            getattr(self, field) == getattr(value, field)
+            for field in self.__dataclass_fields__.keys()
+        )
+    
+    def __lt__(self, value: object) -> bool:
         if not isinstance(value, Address):
             return False
         return all(
@@ -62,16 +70,17 @@ class MatchTuple:
         Assists in the match ranking process'''
     search_address: object
     matched_address: object
-    cols_matched: list[tuple[str, str]]
     match_strength: dict = None
 
     fuzz_stats: dict = None
     avg_match_score: int = None
     avg_fuzz_score: int = None
     
-    def __post_init__(self):
-        search_address_str = self.full_address
-        matched_address_str = self.full_address
+    def __init__(self,search_address, matched_address):
+        self.search_address = search_address
+        self.matched_address = matched_address
+        search_address_str =  search_address.full_address
+        matched_address_str = matched_address.full_address
         match_functions:list[callable] =  [ratio,
                             partial_ratio,
                             token_sort_ratio,
@@ -83,22 +92,22 @@ class MatchTuple:
                                          matched_address_str) 
                                 for func in match_functions}
 
-    def __getitem__(self, attr: str) -> Any:
+    def __getitem__(self, attr: str):
         return getattr(self, attr)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, MatchTuple):
             return False
-        return self.compare(self, other) in ('same', 'eq')
+        return self.compare(other) in ('same', 'eq')
 
     def differs(self, other, field) -> str:
-         """Similar to a __sub__ func
-             Supports the compare method""" 
-         if self[field] > other[field]:
-              return 'gt'
-         if self[field]< other[field]:
-              return 'lt'
-         else:
+        """Similar to a __sub__ func
+            Supports the compare method""" 
+        if self[field] > other[field]:
+             return 'gt'
+        if self[field]< other[field]:
+             return 'lt'
+        else:
               return None
     
     def compare(self, other):

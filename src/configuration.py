@@ -4,6 +4,11 @@ import sys
 import os
 import logging
 
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 # configuration variables 
 
 root_dir = "src/" if os.environ["FULL_PATH"] == "True" else ""
