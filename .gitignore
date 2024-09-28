@@ -1,2 +1,3 @@
 data*
 .editorconfig
+*__pycache__*
