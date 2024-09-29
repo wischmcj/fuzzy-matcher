@@ -1,6 +1,7 @@
-from configuration import logger
-from src.backend.io_processing import input_to_address
+from __future__ import annotations
+
 from matching.main import match_address
+from src.backend.io_processing import input_to_address
 
 
 def create_csv():

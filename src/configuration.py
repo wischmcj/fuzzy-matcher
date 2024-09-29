@@ -1,15 +1,15 @@
-from toml import load
-import os
-import sys
-import os
-import logging
+from __future__ import annotations
 
-from pathlib import Path
+import logging
+import os
 import sys
+from pathlib import Path
+
+from toml import load
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# configuration variables 
+# configuration variables
 
 root_dir = "src/" if os.environ["FULL_PATH"] == "True" else ""
 os.environ.get("DATABASE_URL", "sqlite:///db.sqlite3")
@@ -17,11 +17,10 @@ os.environ.get("INPUT_DIR", ".")
 os.environ.get("OUTPUT_DIR", ".")
 
 # Configurable settings
-with open(f"{root_dir}config.toml", "r") as f:
+with open(f"{root_dir}config.toml") as f:
     CONFIG = load(f)
 
 LOCAL_FILENAME = CONFIG["local_filename"]
-
 
 
 logger = logging.getLogger("pmt_fuzzy")
