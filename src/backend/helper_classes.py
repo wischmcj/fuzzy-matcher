@@ -73,7 +73,6 @@ class MatchTuple:
     match_strength: dict = None
 
     fuzz_stats: dict = None
-    avg_match_score: int = None
     avg_fuzz_score: int = None
     
     def __init__(self,search_address, matched_address):
@@ -91,9 +90,17 @@ class MatchTuple:
                                     func(search_address_str, 
                                          matched_address_str) 
                                 for func in match_functions}
+        scores = self.fuzz_stats.values()
+        self.avg_fuzz_score = sum(scores)/len(scores)
 
-    def __getitem__(self, attr: str):
+    def __getitem__(self, attr: str):   
         return getattr(self, attr)
+    
+    def get(self, attr: str, default=None):   
+        try:
+            return getattr(self, attr)
+        except AttributeError:
+            return default
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, MatchTuple):
@@ -102,22 +109,24 @@ class MatchTuple:
 
     def differs(self, other, field) -> str:
         """Similar to a __sub__ func
-            Supports the compare method""" 
-        if self[field] > other[field]:
-             return 'gt'
-        if self[field]< other[field]:
-             return 'lt'
-        else:
-              return None
+            Supports the compare method"""
+        if self.get(field) and other.get(field):
+            if self[field] > other[field]:
+                return 'gt'
+            if self[field]< other[field]:
+                return 'lt'
+            if self[field] == other[field]:
+                return 'eq'
+        return None
     
     def compare(self, other):
          """ Compares two matches 
          """
-         same_addr = self.search_address_id == other.search_address_id
+         same_addr = self.search_address == other.search_address
          if same_addr:
               return 'same'
          else:
-              for field in ['match_str', 'avg_match_score', 'avg_fuzz_score']:
+              for field in ['match_strength', 'avg_fuzz_score']:
                    decision = self.differs(other, field)
                    if decision:
                         return decision

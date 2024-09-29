@@ -58,34 +58,24 @@ def test_match_tuple_getitem(search_address, matched_address):
     assert match_tuple["search_address"] == search_address
 
 
-# Expected outputs for test_match_tuple_eq
-expected_outputs_eq = [
-    (True,),
-    # Add more tuples for other test cases
-]
-
 def test_match_tuple_eq(search_address, matched_address):
     match_tuple1 = MatchTuple(search_address, matched_address)
     match_tuple2 = MatchTuple(search_address, matched_address)
     assert match_tuple1 == match_tuple2
 
 
-# Expected outputs for test_match_tuple_differs
-expected_outputs_differs = [
-    (None,),
-    # Add more tuples for other test cases
-]
-
 def test_match_tuple_differs(search_address, matched_address):
-    match_tuple1 = MatchTuple(search_address, matched_address)
+    match_tuple1 = MatchTuple(search_address, search_address)
     match_tuple2 = MatchTuple(search_address, matched_address)
-    assert match_tuple1.differs(match_tuple2, "search_address") is None
+    if search_address.full_address != matched_address.full_address:
+        # If the full addresses are different, the match should differ
+        assert match_tuple1.differs(match_tuple2, "avg_fuzz_score") == 'gt'
+        assert match_tuple2.differs(match_tuple1, "avg_fuzz_score") == 'lt'
+    else:
+        # If the full addresses are the same, the match should not differ
+        assert match_tuple1.differs(match_tuple2, "avg_fuzz_score") == 'eq'
 
-# Expected outputs for test_match_tuple_differs
-expected_outputs_compare = [
-    (None,),
-    # Add more tuples for other test cases
-]
+
 def test_match_tuple_compare(search_address, matched_address):
     match_tuple1 = MatchTuple(search_address, matched_address)
     match_tuple2 = MatchTuple(search_address, matched_address)
