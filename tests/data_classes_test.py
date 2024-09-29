@@ -8,7 +8,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.backend.helper_classes import Address, MatchTuple  # noqa: E402
+from src.utils.data_classes import Address, MatchTuple  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

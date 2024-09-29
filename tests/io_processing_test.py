@@ -8,7 +8,7 @@ from pytest import mark
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import src.backend.io_processing as io_module  # noqa: E402
+import src.utils.io_processing as io_module  # noqa: E402
 
 
 def string_compare(s1, s2) -> bool:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from concurrent.futures import Executor
+from concurrent.futures import Executor, ProcessPoolExecutor
 
 from slack_bolt import App, SlackRequestHandler
 
@@ -43,7 +43,7 @@ def handle_mention_event(event, say, ack):
         ack(":x: Usage: /start-process (description here)")
     else:
         ack("Csv file found, beginning processing")
-    logger.info("Received app mention, looking for files...")
+
     thread_ts = event["ts"]
     channel = event["channel"]
     if "files" not in event.keys():
@@ -51,7 +51,7 @@ def handle_mention_event(event, say, ack):
         message = """Please provide a csv file in the chat to have it processed"""
         say(message, thread_ts=thread_ts)
     else:
-        logger.info("files in event.keys()")
+        logger.info("Files found attached to event, starting analysis.")
         app.client.reactions_add(
             token=BOT_TOKEN, channel=channel, name="eyes", timestamp=thread_ts
         )
@@ -108,13 +108,23 @@ def handle_mention_event(event, say, ack):
 
 
 def start_slack_app(event, context, executor: Executor | None = None):
-    logger.info("Setting up executor...")
+    logger.info("Application started with executor %s", type(executor))
     app.executor = executor
-    logger.info("Creating slack handler...")
+    logger.info("Handling request...")
     slack_handler = SlackRequestHandler("app-app")
-    logger.info("Slack handler handling request...")
     return slack_handler.handle(event, context)
+
+
+def main():
+    logger.info("Creating process pool...")
+
+    executor = ProcessPoolExecutor()
+    start_slack_app(executor=executor)
+
+    # If app fails or finished processing, stop pending tasks
+    executor.shutdown(wait=False, cancel_futures=True)
 
 
 if __name__ == "__main__":
     app.start(3000)
+    main()

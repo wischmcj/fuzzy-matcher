@@ -1,44 +1,10 @@
 from __future__ import annotations
 
-import logging
+from src.configuration import logger, FIELD_ALIAS
+from src.utils.data_classes import Address
+from src.utils.str_utils import clean_string
 
-from src.backend.helper_classes import Address
-
-logger = logging.getLogger(__name__)
-
-FIELD_ALIAS = {
-    "source": ["source"],
-    "source_id": ["id", "record_id", "source_id"],
-    "name": ["name", "full_name", "first_name", "last_name"],
-    "address_one": [
-        "address_one",
-        "address",
-        "street_address",
-        "street",
-        "address_line_1",
-    ],
-    "address_two": [
-        "address_two",
-        "additional_address",
-        "address_cont",
-        "address_line_2" "addl_address",
-    ],
-    "locality": ["locality", "city", "town"],
-    "state": ["state", "province", "region"],
-    "state_code": ["state_code", "state_abbr", "state_abbreviation"],
-    "postal_code": ["zip", "zip_code", "postal_code", "postcode"],
-    "country": ["country", "cntry", "nation"],
-    "country_code": [
-        "country_code",
-        "short_country",
-        "country_abbr",
-        "country_abbreviation",
-    ],
-    "latitude": ["lat", "latitude"],
-    "longitude": ["long", "longitude"],
-}
-
-values_to_field = {
+alt_name_to_field = {
     value: key for key, values in FIELD_ALIAS.items() for value in values
 }
 
@@ -54,11 +20,8 @@ def id_input_columns(headers: list[str]) -> str:
             values- index of the column in the input data
     """
 
-    def stdize(x):
-        x.lower().strip().replace(" ", "_")
-
-    clean_fields = [(idc, stdize(raw_col)) for idc, raw_col in enumerate(headers)]
-    col_map = {values_to_field.get(col, col): idc for idc, col in clean_fields}
+    clean_fields = [(idc, clean_string(raw_col)) for idc, raw_col in enumerate(headers)]
+    col_map = {alt_name_to_field.get(col, col): idc for idc, col in clean_fields}
     return col_map
 
 
@@ -122,3 +85,18 @@ def input_to_address(input_data: list, source: str = "file_input") -> list[Addre
         addr.from_data(row, col_map)
         addresses.append(addr)
     return addresses
+
+
+def create_csv():
+    """
+    Creates a results file to be returned to
+     the slack application/user
+    """
+    raise NotImplementedError
+
+
+def stream_file():
+    """
+    Extracts file contents from IO stream
+    """
+    raise NotImplementedError
