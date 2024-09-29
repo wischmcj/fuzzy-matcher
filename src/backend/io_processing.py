@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import logging
+
 from src.backend.helper_classes import Address
 
 logger = logging.getLogger(__name__)
@@ -50,55 +53,61 @@ def id_input_columns(headers: list[str]) -> str:
             keys- address field names (or headers when no match is found)
             values- index of the column in the input data
     """
-    stdize = lambda x: x.lower().strip().replace(" ", "_")
+
+    def stdize(x):
+        x.lower().strip().replace(" ", "_")
+
     clean_fields = [(idc, stdize(raw_col)) for idc, raw_col in enumerate(headers)]
     col_map = {values_to_field.get(col, col): idc for idc, col in clean_fields}
     return col_map
 
 
 def validate_input_cols(col_map: dict) -> str:
-    """Validates that the file recieved matches the expected
+    """Validates that the file received matches the expected
     format and can therefore be succeddfully processed.
     Args:
         col_map (dict): A dictionary with keys as the expected columns
-            and values denoting the indicies of the header in the input file.
+            and values denoting the indices of the header in the input file.
     Returns:
         str: A message indicating the result of the validation."""
     warnings = []
     cols_found = set(col_map.keys())
     expected_columns = set(FIELD_ALIAS.keys())
     req_cols = [
-        set(["address_one", "locality", "state", "country"]),
-        set(["latitude", "longitude"]),
+        {"address_one", "locality", "state", "country"},
+        {"latitude", "longitude"},
     ]
 
     unexpected_columns = cols_found - expected_columns
     missing_optional = expected_columns - cols_found
     missing_required = [col_set - cols_found for col_set in req_cols]
     if all(missing_required):
-        msg = f"""Input invalid: please add either 
-                        {missing_required[1]} or {missing_required[0]}."""
+        msg = f"""Input invalid: please add either
+                        {sorted(missing_required[1])} or {sorted(missing_required[0])}."""
         return False, msg
 
     if missing_optional:
-        warnings.append(f"""Consider adding {sorted(missing_optional)}
-                        to the input file for improved accuracy.""")
+        warnings.append(
+            f"""Consider adding {sorted(missing_optional)}
+                        to the input file for improved accuracy."""
+        )
     if unexpected_columns:
-        warnings.append(f"""Unexpected columns found: {sorted(unexpected_columns)}.
-                        These columns might be misspelled or unneeded.""")
+        warnings.append(
+            f"""Unexpected columns found: {sorted(unexpected_columns)}.
+                        These columns might be misspelled or unneeded."""
+        )
     if warnings:
         warning_message = "\n".join(warnings)
         logger.warning(warning_message)
         return True, warning_message
-    return True, ''
+    return True, ""
 
 
-def input_to_address(input_data: list,
-                    source:str ='file_input') -> list[Address]:
+def input_to_address(input_data: list, source: str = "file_input") -> list[Address]:
     headers = input_data[0]
     data = input_data[1:]
-    if 'source' not in headers:
-        headers.append('source')
+    if "source" not in headers:
+        headers.append("source")
         for row in data:
             row.append(source)
 

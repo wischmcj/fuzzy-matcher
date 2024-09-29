@@ -1,6 +1,8 @@
-from configuration import logger
+from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor
+
+from configuration import logger
 from slack_app import start_slack_app
 
 

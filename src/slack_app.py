@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import os
-from configuration import logger
+from concurrent.futures import Executor
+
 from slack_bolt import App, SlackRequestHandler
+
+from configuration import logger
 from file_tasks import process_file_urls
 
 BOT_TOKEN = ""
@@ -37,7 +42,7 @@ def handle_mention_event(event, say, ack):
     if text is None or len(text) == 0:
         ack(":x: Usage: /start-process (description here)")
     else:
-        ack(f"Csv file found, begining processing")
+        ack("Csv file found, beginning processing")
     logger.info("Received app mention, looking for files...")
     thread_ts = event["ts"]
     channel = event["channel"]
@@ -58,7 +63,7 @@ def handle_mention_event(event, say, ack):
             logger.info("Starting to process record...")
             match_file = process_file_urls(event["files"], BOT_TOKEN, app.executor)
         except Exception as error:
-            logger.error(f"Exception while attempting to process record (error)")
+            logger.error("Exception while attempting to process record (error)")
             if error == "UnicodeDecodeError":
                 msg = """File Extension Error"""
             else:
@@ -82,7 +87,7 @@ def handle_mention_event(event, say, ack):
             )
             logger.info("Files uploaded to slack")
         except Exception as e:
-            say(text=f"Error uploading files: (filepath)", thread_ts=thread_ts)
+            say(text="Error uploading files: (filepath)", thread_ts=thread_ts)
             logger.error(f"Could not upload file {match_file}, error message: {e}")
 
         full_path = str(match_file) + ".csv"
@@ -102,7 +107,7 @@ def handle_mention_event(event, say, ack):
         )
 
 
-def start_slack_app(event, context, executor: Optional[Executor] = None):
+def start_slack_app(event, context, executor: Executor | None = None):
     logger.info("Setting up executor...")
     app.executor = executor
     logger.info("Creating slack handler...")

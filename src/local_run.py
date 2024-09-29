@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import csv
 import os
-from file_tasks import process_records
 
 from configuration import LOCAL_FILENAME
+from file_tasks import process_records
 
 
 def read_from_csv():
@@ -16,6 +18,5 @@ def read_from_csv():
 
 
 if __name__ == "__main__":
-    breakpoint()
     os.environ["FULL_PATH"] = "True"
     read_from_csv()
