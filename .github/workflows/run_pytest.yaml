@@ -18,7 +18,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Set env
-        run: echo "False" >> $FULL_PATH
+        run: echo "False" >> $env:FULL_PATH
 
       - name: Run tests
         run: uv run pytest tests
