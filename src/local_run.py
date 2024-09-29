@@ -16,5 +16,6 @@ def read_from_csv():
 
 
 if __name__ == "__main__":
+    breakpoint()
     os.environ["FULL_PATH"] = "True"
     read_from_csv()

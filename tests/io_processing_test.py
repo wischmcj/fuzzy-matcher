@@ -130,7 +130,7 @@ def test_validate_input_cols(col_map, expected):
                 ["id", "name", "address", "city", "state", "country"],
                 ["1", "John Doe", "123 Main St", "Anytown", "Anystate", "USA"],
             ],
-            [io_module.Address(source='file_input', source_id='1', name='John Doe', address_one='123 Main St', address_two=None, locality='Anytown', state='Anystate', state_code=None, postal_code=None, country='USA', country_code=None, lattitude=None, longitude=None, lat_long=(None, None))]
+            [io_module.Address(source='file_input', source_id='1', name='John Doe', address_one='123 Main St', address_two=None, locality='Anytown', state='Anystate', state_code=None, postal_code=None, country='USA', country_code=None, latitude=None, longitude=None, lat_long=(None, None))]
 
         ),
         (
@@ -145,7 +145,7 @@ def test_validate_input_cols(col_map, expected):
                 ],
                 ["1", "John Doe", "123 Main St", "Anytown", "Anystate", "USA"],
             ],
-            [io_module.Address(source='file_input', source_id='1', name='John Doe', address_one='123 Main St', address_two=None, locality='Anytown', state='Anystate', state_code=None, postal_code=None, country='USA', country_code=None, lattitude=None, longitude=None, lat_long=(None, None))]
+            [io_module.Address(source='file_input', source_id='1', name='John Doe', address_one='123 Main St', address_two=None, locality='Anytown', state='Anystate', state_code=None, postal_code=None, country='USA', country_code=None, latitude=None, longitude=None, lat_long=(None, None))]
 
         ),
     ],
