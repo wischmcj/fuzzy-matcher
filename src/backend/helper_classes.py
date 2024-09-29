@@ -27,7 +27,7 @@ class Address:
     postal_code: Optional[str] = None
     country: Optional[str] = None
     country_code: Optional[str] = None
-    lattitude: Optional[float] = None
+    latitude: Optional[float] = None
     longitude: Optional[float] = None
 
     lat_long: LatLong = None
@@ -53,7 +53,7 @@ class Address:
     def from_data(self, input_row, col_map):
         for field, idx in col_map.items():
             setattr(self, field, input_row[idx])
-        self.lat_long = (self.lattitude, self.longitude)
+        self.lat_long = (self.latitude, self.longitude)
         
         if  self.address_two:
             full_address = self.address_one + ' ' + self.address_two
@@ -61,7 +61,31 @@ class Address:
             full_address = self.address_one
         self.full_address = full_address
         
+class GoogleAddress(Address):
+    """
+    Used for storing more detailed address
+     information returned from the Google Maps API.
 
+    Args:
+        Address: _description_
+    """
+    administrative_area_level_1: Optional [str] = None
+    administrative_area_level_2: Optional [str] = None
+    administrative_area_level_3: Optional [str] = None
+    administrative_area_level_4: Optional [str] = None
+    sublocality: Optional [str] = None
+    sublocality_1: Optional [str] = None
+    sublocality_2: Optional [str] = None
+    sublocality_3: Optional [str] = None
+    sublocality_4: Optional [str] = None
+    street_address: Optional [str] = None
+    route: Optional [str] = None
+    postal_localities: Optional [str] = None
+    google_place_id: Optional [str] = None
+    google_formatted_address: Optional [str] = None
+    postal_town: Optional [str] = None
+    google_type: Optional [list] = None
+    
 
 @dataclass
 class MatchTuple:
@@ -70,8 +94,7 @@ class MatchTuple:
         Assists in the match ranking process'''
     search_address: object
     matched_address: object
-    match_strength: dict = None
-
+    match_strength: int = None
     fuzz_stats: dict = None
     avg_fuzz_score: int = None
     
@@ -132,3 +155,4 @@ class MatchTuple:
                         return decision
                    else:
                         return 'eq'
+    
