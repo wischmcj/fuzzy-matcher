@@ -4,25 +4,24 @@ import logging
 import os
 import sys
 from pathlib import Path
-
 from toml import load
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# configuration variables
-
-root_dir = "src/" if os.environ["FULL_PATH"] == "True" else ""
-os.environ.get("DATABASE_URL", "sqlite:///db.sqlite3")
-os.environ.get("INPUT_DIR", ".")
-os.environ.get("OUTPUT_DIR", ".")
+# environment variables
+ROOT_DIR = "src/" if os.environ["FULL_PATH"] == "True" else ""
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///db.sqlite3")
+INPUT_DIR = "".join([ROOT_DIR, os.environ.get("INPUT_DIR", ".")])
+OUTPUT_DIR = "".join([ROOT_DIR, os.environ.get("OUTPUT_DIR", ".")])
 
 # Configurable settings
-with open(f"{root_dir}config.toml") as f:
+with open(f"{ROOT_DIR}config.toml") as f:
     CONFIG = load(f)
 
 LOCAL_FILENAME = CONFIG["local_filename"]
+FIELD_ALIAS = CONFIG["field_aliases"]
 
-
+# Logging configuration
 logger = logging.getLogger("pmt_fuzzy")
 
 if os.environ["FULL_PATH"] == "True":

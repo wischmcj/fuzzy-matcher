@@ -1,1 +1,17 @@
 [local_filename]
+filename = "data.csv"
+
+[field_aliases]
+source = [ "source",]
+source_id = [ "id", "record_id", "source_id",]
+name = [ "name", "full_name", "first_name", "last_name",]
+address_one = [ "address_one", "address", "street_address", "street", "address_line_1",]
+address_two = [ "address_two", "additional_address", "address_cont", "address_line_2addl_address",]
+locality = [ "locality", "city", "town",]
+state = [ "state", "province", "region",]
+state_code = [ "state_code", "state_abbr", "state_abbreviation",]
+postal_code = [ "zip", "zip_code", "postal_code", "postcode",]
+country = [ "country", "cntry", "nation",]
+country_code = [ "country_code", "short_country", "country_abbr", "country_abbreviation",]
+latitude = [ "lat", "latitude",]
+longitude = [ "long", "longitude",]
