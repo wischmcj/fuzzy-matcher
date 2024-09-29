@@ -1,4 +1,4 @@
 data/*
 .editorconfig
-*__pycache__*
+__pycache__
 .envrc_dev
