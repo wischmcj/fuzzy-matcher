@@ -27,8 +27,29 @@ def hello_command(ack, body):
 
 @app.error
 def global_error_handler(error, body, logger):
-    logger.exception(error)
+    logger.error(error)
     logger.info(body)
+
+
+class Client:
+    def __init__(self, token, channel, timestamp, say):
+        self.token = token
+        self.channel = channel
+        self.timestamp = timestamp
+        self.say = say
+
+    def do(self, method, *args, **kwargs):
+        if method == "say":
+            to_run = self.say
+        else:
+            to_run = getattr(app._client, method)
+        return to_run(
+            *args,
+            token=self.token,
+            channel=self.channel,
+            timestamp=self.timestamp,
+            **kwargs,
+        )
 
 
 @app.event("app_mention")
@@ -36,31 +57,24 @@ def handle_mention_event(event, say, ack):
     """Triggered by StackRequestHandler.handle in start_slack_app
             the event that the triggering event is an app_message.
     Validates record in the attached file (if they exist) and sends them on to be processed"""
+    msg = "Handling mention event..."
+    logger.info(msg)
+    ack(msg)
+    client = Client(BOT_TOKEN, event["channel"], event["ts"])
 
-    logger.info("Handling mention event...")
-    text = event.get("text")
-    if text is None or len(text) == 0:
-        ack(":x: Usage: /start-process (description here)")
-    else:
-        ack("Csv file found, beginning processing")
-
-    thread_ts = event["ts"]
-    channel = event["channel"]
     if "files" not in event.keys():
         logger.info("No files found, terminating analysis")
         message = """Please provide a csv file in the chat to have it processed"""
-        say(message, thread_ts=thread_ts)
+        client.say(message)
     else:
         logger.info("Files found attached to event, starting analysis.")
-        app.client.reactions_add(
-            token=BOT_TOKEN, channel=channel, name="eyes", timestamp=thread_ts
-        )
-        message = "Processing file(s)..."
-        say(message, thread_ts=thread_ts)
+
+        client.do("reactions_add", name="eyes")
+        client.do("say", "Processing file(s)...")
         # Attempt to analyze files in parallel
         # Send an error message if analysis fails
         try:
-            logger.info("Starting to process record...")
+            logger.info(message)
             match_file = process_file_urls(event["files"], BOT_TOKEN, app.executor)
         except Exception as error:
             logger.error("Exception while attempting to process record (error)")
@@ -68,43 +82,31 @@ def handle_mention_event(event, say, ack):
                 msg = """File Extension Error"""
             else:
                 msg = f"""File Format Error: {error}"""
-        blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": f"{msg}"}}]
-        say(blocks, text=f"{msg} file spec here", thread_ts=thread_ts)
-        app._client.reactions_add(
-            token=BOT_TOKEN, channel=channel, name="exclamation", timestamp=thread_ts
-        )
+            blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": f"{msg}"}}]
+            client.do("say", blocks, text=f"{msg}")
+            client.do("reactions_remove", name="eyes")
+            client.do("reactions_add", name="exclamation")
 
-        app._client.reactions_remove(
-            token=BOT_TOKEN, channel=channel, name="eyes", timestamp=thread_ts
-        )
         try:
-            app._client.files_upload(
-                token=BOT_TOKEN,
+            client.do(
+                "files_upload",
                 file=str(match_file) + ".csv",
                 filename=str(match_file) + ".csv",
-                channels=channel,
-                thread_ts=thread_ts,
             )
             logger.info("Files uploaded to slack")
         except Exception as e:
-            say(text="Error uploading files: (filepath)", thread_ts=thread_ts)
-            logger.error(f"Could not upload file {match_file}, error message: {e}")
+            msg = f"Error uploading files: {match_file}"
+            client.do("say", msg)
+            logger.error(f"{msg}, error message: {e}")
 
         full_path = str(match_file) + ".csv"
         try:
             os.remove(full_path)
         except Exception as e:
-            logger.info(f"Removal of file (filepath) failed: {e}")
+            logger.info(f"Removal of file {full_path} failed: {e}")
 
-        app._client.reactions_add(
-            token=BOT_TOKEN,
-            channel=channel,
-            name="white_check_mark",
-            timestamp=thread_ts,
-        )
-        app._client.reactions_remove(
-            token=BOT_TOKEN, channel=channel, name="eyes", timestamp=thread_ts
-        )
+        client.do("reactions_add", name="white_check_mark")
+        client.do("reactions_remove", name="eyes")
 
 
 def start_slack_app(event, context, executor: Executor | None = None):
